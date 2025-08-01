@@ -1,0 +1,61 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: jenkins
+    targetRevision: 13.6.14
+    helm:
+      values: |
+        controller:
+          service:
+            type: LoadBalancer
+          persistence:
+            enabled: true
+            storageClass: "gp2-immediate"
+            size: 4Gi
+          admin:
+            existingSecret: jenkins-secret
+            userKey: jenkins-admin-user
+            passwordKey: jenkins-admin-password
+
+          healthProbe:
+            enabled: true
+            livenessProbe:
+              httpGet:
+                path: /login
+                port: http
+              initialDelaySeconds: 60
+              timeoutSeconds: 5
+              periodSeconds: 10
+              failureThreshold: 6
+            readinessProbe:
+              httpGet:
+                path: /login
+                port: http
+              initialDelaySeconds: 30
+              timeoutSeconds: 5
+              periodSeconds: 10
+              failureThreshold: 3
+
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1200Mi"
+            cpu: "800m"
+
+        agent:
+          enabled: false
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: jenkins
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

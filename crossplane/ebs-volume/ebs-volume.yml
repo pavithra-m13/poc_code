@@ -1,0 +1,14 @@
+apiVersion: ec2.aws.upbound.io/v1beta1
+kind: EBSVolume
+metadata:
+  name: ebs-volume-jenkins
+  namespace: crossplane-system
+spec:
+  forProvider:
+    region: us-east-1              
+    availabilityZone: us-east-1a
+    size: 5
+    tags:
+      Name: jenkins-ebs-volume
+  providerConfigRef:
+    name: provider-aws

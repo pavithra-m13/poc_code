@@ -1,0 +1,75 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kyverno-policies
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pavithra-m13/kyverno_polices.git
+    targetRevision: master
+    path: .
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kyverno
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
+      - Replace=true
+      - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+  ignoreDifferences:
+    # Ignore differences in Kyverno policy status fields
+    - group: kyverno.io
+      kind: ClusterPolicy
+      jsonPointers:
+        - /status
+        - /metadata/generation
+        - /metadata/resourceVersion
+        - /metadata/uid
+        - /metadata/creationTimestamp
+        - /metadata/managedFields
+    - group: kyverno.io
+      kind: Policy
+      jsonPointers:
+        - /status
+        - /metadata/generation
+        - /metadata/resourceVersion
+        - /metadata/uid
+        - /metadata/creationTimestamp
+        - /metadata/managedFields
+    # Ignore admission and background scan report status
+    - group: kyverno.io
+      kind: AdmissionReport
+      jsonPointers:
+        - /status
+        - /metadata/ownerReferences
+    - group: kyverno.io
+      kind: BackgroundScanReport
+      jsonPointers:
+        - /status
+        - /metadata/ownerReferences
+    # Ignore cluster-level reports
+    - group: kyverno.io
+      kind: ClusterAdmissionReport
+      jsonPointers:
+        - /status
+        - /metadata/ownerReferences
+    - group: kyverno.io
+      kind: ClusterBackgroundScanReport
+      jsonPointers:
+        - /status
+        - /metadata/ownerReferences
+    - group: kyverno.io
+      kind: ClusterPolicy
+      jsonPointers:
+        - /spec/skipBackgroundRequests

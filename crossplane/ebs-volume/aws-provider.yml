@@ -1,0 +1,10 @@
+# aws-provider.yaml
+apiVersion: pkg.crossplane.io/v1
+kind: Provider
+metadata:
+  name: provider-aws
+spec:
+  package: xpkg.upbound.io/upbound/provider-aws:v0.44.0  # You can use the latest stable version
+
+
+
