@@ -17,7 +17,7 @@ spec:
       key: password
     dbSubnetGroupName: rds-subnet-group
     vpcSecurityGroupIds:
-      - sg-0193e3275c5d583c0
+      - <security-group-id>
     publiclyAccessible: false
     skipFinalSnapshot: true
   writeConnectionSecretToRef:
